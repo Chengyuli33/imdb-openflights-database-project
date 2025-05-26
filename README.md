@@ -20,10 +20,7 @@ It involves:
 
 - `openflights_queries.sql`: Analytical SQL queries on the OpenFlights data.
 
-- `project_report.md`: For detailed question breakdowns and query logic.
-
-
-
+- 👉[`project_report.md`](./project_report.md): For detailed question breakdowns, SQL query logic, and image demos.
 
 ## 🛠️ Tech Stack
 
