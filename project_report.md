@@ -4,7 +4,7 @@ To enable remote SQL query execution from DataGrip, this project uses a PostgreS
 
 ![RDS Instance](screenshots/aws_setup1.png)
 
-![Security Group](screenshots/aws_setup2.png)
+
 
 ---
 
