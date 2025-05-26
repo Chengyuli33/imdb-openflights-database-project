@@ -1,4 +1,3 @@
-
 -- Airlines Table
 CREATE TABLE Airlines (
     id INT,
