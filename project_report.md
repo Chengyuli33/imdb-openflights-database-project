@@ -1,3 +1,13 @@
+### ☁️ AWS RDS Setup: PostgreSQL Instance & Security Group
+
+To enable remote SQL query execution from DataGrip, this project uses a PostgreSQL instance hosted on **Amazon RDS**. First create a PostgreSQL RDS instance, and then configured security group for external access.
+
+![RDS Instance](screenshots/aws_setup1.png)
+
+![Security Group](screenshots/aws_setup2.png)
+
+---
+
 ### Query 1: People Whose Names Start with ‘A’ and Are 5 Characters Long
 
 **🧾 Task**:  
@@ -22,7 +32,7 @@ ORDER BY
     name;
 ```
 
-![添加截图描述性文字](screenshots/query1_result.png)
+![query1](screenshots/query1.png)
 
 ---
 
@@ -47,7 +57,7 @@ WHERE
     AND m.rating >= 7
     AND m.release_year > 2000;
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![query2](screenshots/query2.png)
 
 ### Query 3: Prolific Actors in Highly-Rated Movies
 
@@ -81,7 +91,7 @@ ORDER BY
     num_movies DESC,
     p.name;
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![query3](screenshots/query3.png)
 
 ---
 
@@ -121,7 +131,7 @@ LEFT JOIN
         action_actors aa ON a.person_id = aa.person_id
 WHERE aa.person_id IS NULL;
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![query4](screenshots/query4.png)
 
 ---
 
@@ -179,7 +189,7 @@ WHERE
             dm.rating IS NOT NULL -- exclude NULL rating
     );
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![query5](screenshots/query5.png)
 
 ---
 
@@ -219,7 +229,7 @@ WHERE c.job = 'director'
 GROUP BY c.person_id, p.name
 ORDER BY movie_count DESC, c.person_id;
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![query6](screenshots/query5.png)
 
 ---
 
@@ -269,7 +279,7 @@ WHERE c.job = 'director'
 GROUP BY el.experience_level
 ORDER BY avg_num_ratings DESC;
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![query7](screenshots/query7.png)
 
 ---
 
@@ -331,7 +341,8 @@ CREATE TABLE Routes (
     FOREIGN KEY (target_id) REFERENCES Airports (id)
 );
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![create tables and import data](screenshots/data_import1.png)
+![create tables and import data](screenshots/data_import2.png)
 
 ---
 
@@ -383,7 +394,7 @@ ORDER BY
     city,
     country;
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![query9](screenshots/query9.png)
 
 ---
 
@@ -418,7 +429,7 @@ WHERE a.country = s.country AND a.country = t.country
 GROUP BY a.id, a.name, a.country
 ORDER BY a.country, a.name;
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![query10](screenshots/query10.png)
 
 ---
 
@@ -487,7 +498,7 @@ LEFT JOIN
 ORDER BY
     num_flights DESC;
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![query11](screenshots/query11.png)
 
 ---
 ### Query 12: All Valid Flight Paths from AUH to JFK (Max 3 Legs)
@@ -597,7 +608,7 @@ ORDER BY
     num_flights,
     path;
 ```
-![添加截图描述性文字](screenshots/query1_result.png)
+![query12](screenshots/query12.png)
 
 
 
