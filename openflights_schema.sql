@@ -12,6 +12,7 @@ CREATE TABLE Airlines (
     PRIMARY KEY (id)
 );
 
+
 -- Airports Table
 CREATE TABLE Airports (
     id INT,
@@ -28,6 +29,7 @@ CREATE TABLE Airports (
     tz VARCHAR(255),
     PRIMARY KEY (id)
 );
+
 
 -- Routes Table
 CREATE TABLE Routes (
