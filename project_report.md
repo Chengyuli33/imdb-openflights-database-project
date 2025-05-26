@@ -10,7 +10,16 @@ Print the name of all people whose name starts with ‘A’ (case-sensitive), do
 
 **🧠 SQL Code**:
 ```sql
-hi
+SELECT
+    DISTINCT name
+FROM
+    people
+WHERE
+    name LIKE 'A%'
+    AND LENGTH(name) = 5
+    AND NOT (name LIKE '%e' OR name LIKE '%n')
+ORDER BY
+    name;
 ```
 
 ![添加截图描述性文字](screenshots/query1_result.png)
@@ -27,7 +36,16 @@ Print the id and name of all directors who have directed some movie whose rating
 
 **🧠 SQL Code**:
 ```sql
-hi
+SELECT
+    DISTINCT p.id, p.name
+FROM
+    crew_in c
+    JOIN people p ON c.person_id = p.id
+    JOIN movies m ON c.movie_id = m.id
+WHERE
+    c.job = 'director'
+    AND m.rating >= 7
+    AND m.release_year > 2000;
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
@@ -44,7 +62,24 @@ Round average rating to two decimal points using the ROUND function.
 
 **🧠 SQL Code**:
 ```sql
-hi
+SELECT
+    p.id,
+    p.name,
+    ROUND(AVG(m.rating), 2) AS avg_rating,
+    COUNT(*) AS num_movies
+FROM cast_in c
+    JOIN movies m ON c.movie_id = m.id
+    JOIN people p ON c.person_id = p.id
+WHERE
+    m.num_ratings > 100000
+GROUP BY
+    p.id,
+    p.name
+HAVING
+    COUNT(*) > 10
+ORDER BY
+    num_movies DESC,
+    p.name;
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
@@ -65,7 +100,26 @@ Print the number of distinct people who have acted in at least one movie, but ha
 
 **🧠 SQL Code**:
 ```sql
-hi
+WITH
+all_actors AS (  -- people who have ever acted in at least one movie:
+    SELECT DISTINCT c.person_id
+    FROM cast_in c
+),
+action_actors AS (  -- people who have ever acted in "Action" movie released in or since 2000:
+    SELECT DISTINCT c.person_id
+    FROM cast_in c
+        JOIN movies m ON c.movie_id = m.id
+        JOIN movie_genres g ON m.id = g.movie_id
+    WHERE g.genre = 'Action'
+      AND m.release_year >= 2000
+)
+SELECT
+    COUNT(*) AS num_actors
+FROM
+    all_actors a
+LEFT JOIN
+        action_actors aa ON a.person_id = aa.person_id
+WHERE aa.person_id IS NULL;
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
@@ -87,7 +141,43 @@ Find the titles and ratings of movies that have a higher rating than all movies 
 
 **🧠 SQL Code**:
 ```sql
-hi
+WITH
+directors_with_10_movies AS (  -- find the id of the director who has directed exactly 10 movies
+    SELECT
+        c.person_id AS director_id
+    FROM
+        crew_in c
+    WHERE
+        c.job = 'director'
+    GROUP BY
+        c.person_id
+    HAVING
+        COUNT(*) = 10
+),
+director_movies_rating AS (  -- find the rating of 10_movies_directors
+    SELECT
+        m.rating
+    FROM
+        directors_with_10_movies d  -- NOTE: JOIN extended directors_with_10_movies table with more columns.
+    JOIN
+        crew_in c ON d.director_id = c.person_id
+    JOIN
+        movies m ON c.movie_id = m.id
+)
+SELECT
+    m.title,
+    m.rating
+FROM
+    movies m
+WHERE
+    m.rating > ALL (  -- rating should higher than all movies in the following subquery:
+        SELECT
+            dm.rating
+        FROM
+            director_movies_rating dm
+        WHERE
+            dm.rating IS NOT NULL -- exclude NULL rating
+    );
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
@@ -110,7 +200,24 @@ For each movie director who has directed at least one movie with more than a mil
 
 **🧠 SQL Code**:
 ```sql
-hi
+WITH directors_with_hit AS (
+    SELECT DISTINCT c.person_id
+    FROM crew_in c
+    JOIN movies m ON c.movie_id = m.id
+    WHERE c.job = 'director' AND m.num_ratings > 1000000
+)
+SELECT
+    c.person_id AS director_id,
+    p.name AS director_name,
+    STRING_AGG(m.title, '; ' ORDER BY m.title) AS movies,
+    COUNT(m.id) AS movie_count
+FROM crew_in c
+JOIN people p ON c.person_id = p.id
+JOIN movies m ON c.movie_id = m.id
+JOIN directors_with_hit dwh ON dwh.person_id = c.person_id
+WHERE c.job = 'director'
+GROUP BY c.person_id, p.name
+ORDER BY movie_count DESC, c.person_id;
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
@@ -134,7 +241,33 @@ Define the experience level of a director as ‘Rising Star’ if they have dire
 
 **🧠 SQL Code**:
 ```sql
-hi
+WITH movie_counts_per_director AS (
+    SELECT
+        c.person_id AS director_id,
+        COUNT(DISTINCT c.movie_id) AS director_total_movie_count
+    FROM crew_in c
+    WHERE c.job = 'director'
+    GROUP BY c.person_id
+),
+experience_level AS (
+    SELECT
+        director_id,
+        CASE
+            WHEN director_total_movie_count < 5 THEN 'Rising Star'
+            ELSE 'Veteran'
+        END AS experience_level
+    FROM movie_counts_per_director
+)
+SELECT
+    el.experience_level,
+    ROUND(AVG(COALESCE(m.num_ratings, 0)), 2) AS avg_num_ratings,
+    ROUND(AVG(COALESCE(m.rating, 0)), 2) AS avg_rating
+FROM experience_level el
+JOIN crew_in c ON c.person_id = el.director_id
+JOIN movies m ON c.movie_id = m.id
+WHERE c.job = 'director'
+GROUP BY el.experience_level
+ORDER BY avg_num_ratings DESC;
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
@@ -155,7 +288,48 @@ Include appropriate:
 
 **🧠 SQL Code**:
 ```sql
-hi
+CREATE TABLE Airlines (
+    id INT,
+    name VARCHAR(255),
+    alias VARCHAR(255),
+    iata CHAR(2),
+    icao CHAR(3),
+    callsign VARCHAR(255),
+    country VARCHAR(255),
+    active CHAR(1),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE Airports (
+    id INT,
+    name VARCHAR(255),
+    city VARCHAR(255),
+    country VARCHAR(255),
+    iata CHAR(3),
+    icao CHAR(4),
+    lat NUMERIC(8,6),
+    lon NUMERIC(9,6),
+    alt INT,
+    timezone NUMERIC(3,1),
+    dst CHAR(1),
+    tz VARCHAR(255),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE Routes (
+    airline_iata CHAR(3),
+    airline_id INT,
+    src_iata_icao CHAR(4),
+    source_id INT,
+    target_iata_icao CHAR(4),
+    target_id INT,
+    code_share CHAR(1) CHECK (code_share IN ('Y', '')),
+    equipment CHAR(20),
+    PRIMARY KEY (airline_id, source_id, target_id),
+    FOREIGN KEY (airline_id) REFERENCES Airlines (id),
+    FOREIGN KEY (source_id) REFERENCES Airports (id),
+    FOREIGN KEY (target_id) REFERENCES Airports (id)
+);
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
@@ -181,7 +355,33 @@ Print the name and country of all cities that contain an international airport, 
 
 **🧠 SQL Code**:
 ```sql
-hi
+WITH
+international_airports AS (
+    SELECT
+        a.city,
+        a.country
+    FROM
+        Airports a
+    JOIN
+        Routes r ON a.id = r.source_id
+    JOIN
+        Airports dest ON r.target_id = dest.id
+        AND a.country <> dest.country
+    GROUP BY
+        a.id,
+        a.city,
+        a.country
+    HAVING
+        COUNT(DISTINCT dest.country) >= 5  -- fly to at least 5 different countries
+)
+SELECT DISTINCT
+    city,
+    country
+FROM
+    international_airports
+ORDER BY
+    city,
+    country;
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
@@ -205,7 +405,18 @@ For each airline, count the number of distinct domestic cities that are sources 
 
 **🧠 SQL Code**:
 ```sql
-hi
+SELECT
+    a.name AS airline_name,
+    a.country AS home_country,
+    COUNT(DISTINCT s.city) AS distinct_source_cities,
+    COUNT(DISTINCT t.city) AS distinct_target_cities
+FROM Airlines a
+JOIN Routes r ON a.id = r.airline_id
+JOIN Airports s ON r.source_id = s.id
+JOIN Airports t ON r.target_id = t.id
+WHERE a.country = s.country AND a.country = t.country
+GROUP BY a.id, a.name, a.country
+ORDER BY a.country, a.name;
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
@@ -233,7 +444,48 @@ For all unique pairs of cities within Kenya, count the number of flights from ci
 
 **🧠 SQL Code**:
 ```sql
-hi
+WITH
+kenyan_cities AS (  -- find all cities within Kenya
+    SELECT DISTINCT city
+    FROM airports
+    WHERE country = 'Kenya'
+),
+all_kenyan_pairs AS (  -- find all city pairs in within Kenya
+    SELECT
+        k1.city AS city_A,
+        k2.city AS city_B
+    FROM
+        kenyan_cities k1
+    CROSS JOIN
+        kenyan_cities k2
+    WHERE k1.city <> k2.city  -- city pair refers to different cities
+),
+flights_A_to_B AS (  -- find flights from city A to city B
+    SELECT
+        src.city AS city_A,
+        dest.city AS city_B,
+        COUNT(*) AS num_flights
+    FROM
+        routes r
+    JOIN
+        airports src ON r.source_id = src.id AND src.country = 'Kenya'
+    JOIN
+        airports dest ON r.target_id = dest.id AND dest.country = 'Kenya'
+    GROUP BY
+        src.city,
+        dest.city
+)
+SELECT
+    kp.city_A,
+    kp.city_B,
+    COALESCE(fab.num_flights, 0) AS num_flights
+FROM
+    all_kenyan_pairs kp
+LEFT JOIN
+    flights_A_to_B fab
+    ON kp.city_A = fab.city_A AND kp.city_B = fab.city_B
+ORDER BY
+    num_flights DESC;
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
@@ -268,7 +520,82 @@ To construct paths, please combine city names. Remember that the query needs to 
 
 **🧠 SQL Code**:
 ```sql
-hi
+WITH
+scenario_1 AS (
+    SELECT DISTINCT
+        1 AS num_flights,  -- number of flights is 1
+        'AUH;JFK' AS path  -- return the path separated by semicolons
+    FROM Routes r
+    -- the first leg of the flight:
+    JOIN Airports src ON r.source_id = src.id AND src.iata = 'AUH'  -- match routes where the source airport is AUH
+    JOIN Airports dest ON r.target_id = dest.id AND dest.iata = 'JFK'  -- match routes where the target airport is JFK
+),
+scenario_2 AS (
+    SELECT DISTINCT
+        2 AS num_flights,  -- number of flights is 2
+        CONCAT('AUH;', x.iata, ';JFK') AS path  -- return the path separated by semicolons
+    FROM Routes r1
+    -- the first leg of the flight:
+    JOIN Airports src ON r1.source_id = src.id AND src.iata = 'AUH'  -- match routes where the source airport is AUH
+    JOIN Airports x ON r1.target_id = x.id  -- match routes where the target airport is X
+    -- the second leg of the flight:
+    JOIN Routes r2 ON r2.source_id = x.id  -- match routes where the source airport is X
+    JOIN Airports jfk ON r2.target_id = jfk.id AND jfk.iata = 'JFK'  -- match routes where the target airport is JFK
+    WHERE
+        x.iata != 'JFK'
+),
+scenario_3 AS (
+    SELECT DISTINCT
+        3 AS num_flights,  -- number of flights is 3
+        CONCAT('AUH;', x.iata, ';LHR;JFK') AS path  -- return the path separated by semicolons
+    FROM Routes r1
+    -- the first leg of the flight:
+    JOIN Airports src ON r1.source_id = src.id AND src.iata = 'AUH'  -- match routes where the source airport is AUH
+    JOIN Airports x ON r1.target_id = x.id  -- match routes where the target airport is X
+    -- the second leg of the flight:
+    JOIN Routes r2 ON r2.source_id = x.id  -- match routes where the source airport is X
+    JOIN Airports lhr ON r2.target_id = lhr.id AND lhr.iata = 'LHR'  -- match routes where the target airport is LHR
+    -- the third leg of the flight:
+    JOIN Routes r3 ON r3.source_id = lhr.id  -- match routes where the source airport is LHR
+    JOIN Airports jfk ON r3.target_id = jfk.id AND jfk.iata = 'JFK'  -- match routes where the source airport is JFK
+    WHERE
+        x.iata != 'JFK'
+),
+scenario_4 AS (
+    SELECT DISTINCT
+        3 AS num_flights,  -- number of flights is 3
+        CONCAT('AUH;LHR;', x.iata, ';JFK') AS path  -- return the path separated by semicolons
+    FROM Routes r1
+    -- the first leg of the flight:
+    JOIN Airports auh ON r1.source_id = auh.id AND auh.iata = 'AUH'  -- match routes where the source airport is AUH
+    JOIN Airports lhr ON r1.target_id = lhr.id AND lhr.iata = 'LHR'  -- match routes where the target airport is LHR
+    -- the second leg of the flight:
+    JOIN Routes r2 ON r2.source_id = lhr.id  -- match routes where the source airport is LHR
+    JOIN Airports x ON r2.target_id = x.id  -- match routes where the target airport is X
+    -- the third leg of the flight:
+    JOIN Routes r3 ON r3.source_id = x.id  -- match routes where the source airport is AUH
+    JOIN Airports jfk ON r3.target_id = jfk.id AND jfk.iata = 'JFK'  -- match routes where the target airport is JFK
+    WHERE
+        x.iata != 'AUH'
+)
+SELECT
+    num_flights,
+    path
+FROM (
+    SELECT * FROM scenario_1
+    UNION
+    SELECT * FROM scenario_2
+    UNION
+    SELECT * FROM scenario_3
+    UNION
+    SELECT * FROM scenario_4
+) AS combined
+GROUP BY
+    num_flights,
+    path
+ORDER BY
+    num_flights,
+    path;
 ```
 ![添加截图描述性文字](screenshots/query1_result.png)
 
