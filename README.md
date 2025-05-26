@@ -9,6 +9,7 @@ It involves:
 - Designing a normalized relational schema for the OpenFlights dataset (Airlines, Airports, Routes).
 - Uploading data into AWS RDS PostgreSQL and performing complex analytics such as airport connectivity, domestic flights, and custom pathfinding.
 - Writing safe and optimized SQL queries including usage of `WITH`, `COALESCE`, `CASE`, `STRING_AGG`, and multi-step joins.
+- `ER_Diagram.png`: Entity Relationship Diagram
 
 
 ## 📁 File Structure
@@ -20,6 +21,7 @@ It involves:
 - `openflights_queries.sql`: Analytical SQL queries on the OpenFlights data.
 
 - `project_report.md`: For detailed question breakdowns and query logic.
+
 
 
 

@@ -343,6 +343,7 @@ CREATE TABLE Routes (
 ```
 ![create tables and import data](screenshots/data_import1.png)
 ![create tables and import data](screenshots/data_import2.png)
+![create tables and import data](screenshots/ER_diagram.png)
 
 ---
 
