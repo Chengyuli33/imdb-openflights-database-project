@@ -1,6 +1,6 @@
 # IMDB & OpenFlights SQL Database Project
 
-This project focuses on querying the IMDB dataset and designing a normalized PostgreSQL database for OpenFlights flight data. For a detailed breakdown of SQL query logic and visual demo, see the 👉 [`project report`](./project_report.md).
+This project focuses on querying the IMDB dataset and designing a PostgreSQL database for OpenFlights flight data. For a detailed breakdown of SQL query logic and visual demo, see the 👉 [`project report`](./project_report.md).
 
 It involves:
 - Querying a PostgreSQL-hosted IMDB dataset using advanced SQL (joins, subqueries, aggregations, CTEs).
