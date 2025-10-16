@@ -2,11 +2,11 @@
 
 This project focuses on querying the IMDB dataset and designing a PostgreSQL database for OpenFlights flight data. For a detailed breakdown of SQL query logic and visual demo, see the 👉 [`project report`](./project_report.md).
 
-It involves:
+## ✨ Key Components
 - Querying a PostgreSQL-hosted IMDB dataset using advanced SQL (joins, subqueries, aggregations, CTEs).
 - Designing a normalized relational schema for the OpenFlights dataset (Airlines, Airports, Routes).
 - Uploading data into AWS RDS PostgreSQL and performing complex analytics such as airport connectivity, domestic flights, and custom pathfinding.
-- Writing safe and optimized SQL queries including usage of `WITH`, `COALESCE`, `CASE`, `STRING_AGG`, and multi-step joins.
+- Includes optimized SQL queries using **CTEs**, `COALESCE`, `CASE`, and `STRING_AGG` for multi-step analytical joins and analytical aggregations.
 - `ER_Diagram.png`: Entity Relationship Diagram
 
 
